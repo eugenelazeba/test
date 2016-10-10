@@ -68,11 +68,11 @@ object SparkSqlCsv {
 
       dfOriginDestFlDateWeek.createOrReplaceTempView("MY")
 
-      val week1Dest = dfOriginDestFlDateWeek.select("DEST").groupBy("DEST").count()
-      val week1Origin = sqlc.sql("SELECT (ORIGIN), -count(*) FROM MY group by (ORIGIN)")
-      val weeks = week1Dest.union(week1Origin.withColumn("(-count(1))", lit(0)))
+      val weekDest = dfOriginDestFlDateWeek.select("DEST").groupBy("DEST").count()
+      val weekOrigin = sqlc.sql("SELECT (ORIGIN), -count(*) FROM MY group by (ORIGIN)")
+      val dfTaskThird = weekDest.union(weekOrigin.withColumn("(-count(1))", lit(0)))
 
-      weeks.repartition(1).write.mode(SaveMode.Append).format("com.databricks.spark.csv").option("header", "false").save("task3")
+      dfTaskThird.repartition(1).write.mode(SaveMode.Append).format("com.databricks.spark.csv").option("header", "false").save("task3")
 
     }
   }
